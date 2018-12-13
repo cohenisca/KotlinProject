@@ -2,7 +2,7 @@ package exe2
 import java.io.File
 //hello shalom
 fun main(args: Array<String>){
-    var pathDir="C:\\Users\\Nurit\\Downloads\\nand2tetris\\projects\\08\\FunctionCalls\\FibonacciElement"
+    var pathDir="C:\\Users\\Nurit\\Downloads\\Exercises\\Targil1\\project 07\\SimpleAdd"
 
     File(pathDir).walk()
             .forEach {

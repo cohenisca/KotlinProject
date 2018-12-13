@@ -10,7 +10,8 @@ class FunctionCallingCommand(var out_file: File) {
         //???
         functionNamaLAbel=functionNane
         out_file.appendText("("+functionNane+")")
-        for(i in 0 until numOfLocals.toInt())
+        // 0 until numOfLocals.toInt()
+        for(i in 1..numOfLocals.toInt())
         {
             ConvertToHack("push constant 0",out_file)
         }
@@ -84,26 +85,26 @@ class FunctionCallingCommand(var out_file: File) {
             @SP
             M=D
 
-            @R14
+            @LCL
             D=M-1
             @THAT
             M=D
 
-            @R14
+            @LCL
             D=M
             @2
             D=D-A
             @THIS
             M=D
 
-            @R14
+            @LCL
             D=M
             @3
             D=D-A
             @ARG
             M=D
 
-            @R14
+            @LCL
             D=M
             @4
             D=D-A
