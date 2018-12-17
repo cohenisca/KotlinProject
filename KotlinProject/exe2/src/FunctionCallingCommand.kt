@@ -74,14 +74,18 @@ class FunctionCallingCommand(var out_file: File) {
     fun buildReturn(){
         out_file.appendText("""
 
+            //return address
 
             @LCL
             D=M
             @5
             D=D-A
+            A=D
+            D=M
             @R14
             M=D
 
+            //return value
             @SP
             A=M-1
             D=M
@@ -89,34 +93,52 @@ class FunctionCallingCommand(var out_file: File) {
             A=M
             M=D
 
+
+            //sp reposition
+
             @ARG
             D=M+1
             @SP
             M=D
 
+
+            //that reposition
             @LCL
             D=M-1
+            A=D
+            D=M
             @THAT
             M=D
+
+
+            //this reposition
 
             @LCL
             D=M
             @2
             D=D-A
+            A=D
+            D=M
             @THIS
             M=D
 
+            //arg reposition
             @LCL
             D=M
             @3
             D=D-A
+            A=D
+            D=M
             @ARG
             M=D
 
+            //lcl reposition
             @LCL
             D=M
             @4
             D=D-A
+            A=D
+            D=M
             @LCL
             M=D
 

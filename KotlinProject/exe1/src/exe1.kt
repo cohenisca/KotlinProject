@@ -24,21 +24,24 @@ import java.io.File
 
  //           }
 //}
-
+var fileName=""
 
 fun main(args: Array<String>){
     var lst=("").toList()
 
     //val directoryNames: MutableList<String> = mutableListOf("\\MemoryAccess\\BasicTest", "\\MemoryAccess\\PointerTest", "\\MemoryAccess\\StaticTest","\\StackArithmetic\\SimpleAdd","\\StackArithmetic\\StackTest")
     //var pathDir="C:\\Users\\Nurit\\Downloads\\nand2tetris\\projects\\07\\StackArithmetic\\StackTest"
-    var pathDir="C:\\Users\\Nurit\\Downloads\\nand2tetris\\projects\\07\\StackArithmetic\\StackTest"
-
+    var pathDir="C:\\Users\\Nurit\\Downloads\\Exercises\\Targil1\\project 07\\SimpleAdd"
+    var newFile= File(pathDir+pathDir.substring(pathDir.lastIndexOf('\\'),pathDir.length) +".asm")
+    if(newFile.exists()){
+        newFile.delete()
+    }
     File(pathDir).walk()
             .forEach {
                 if(it.extension=="vm") {
                     var index=it.name.indexOf(".")
-                    var newFile=File(pathDir+"\\"+it.name.substring(0,index)+".asm")
 
+                    fileName=File(it.name).nameWithoutExtension
                     it.forEachLine {
                         if(!it.startsWith("//") && it.length>0)
                             ConvertToHack(it, newFile)

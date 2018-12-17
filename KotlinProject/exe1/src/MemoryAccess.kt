@@ -12,64 +12,88 @@ class MemoryAccess(var out_file:File,var segment:String,var offset:String) {
             out_file.appendText("@SP\n")
             //remove one organ from the stack
             out_file.appendText("M=M-1\n")
-            return
-        }
 
-        when(segment){
-            "local"->{
-                loadSegment="@LCL"
-                //D=RAM[A]+D
-                calculateOffset="D=M+D"
-            }
-            "argument"->{
-                loadSegment="@ARG"
-                calculateOffset="D=M+D"
-            }
-            "this"->{
-                loadSegment="@THIS"
-                calculateOffset="D=M+D"
-            }
-            "that"->{
-                loadSegment="@THAT"
-                calculateOffset="D=M+D"
-            }
-            "static"->{
-                loadSegment="@16"
-                calculateOffset="D=A+D"
-            }
-            "pointer"->{
-                loadSegment="@3"
-                calculateOffset="D=A+D"
-            }
-            "temp"->{
-                loadSegment="@5"
-                calculateOffset="D=A+D"
-            }
-            else->throw IllegalArgumentException("'$segment' is not a legal VM segment")
         }
+        else if (segment=="static"){
+            popStaticCommand(fileName, offset)
+        }
+        else {
+            when (segment) {
+                "local" -> {
+                    loadSegment = "@LCL"
+                    //D=RAM[A]+D
+                    calculateOffset = "D=M+D"
+                }
+                "argument" -> {
+                    loadSegment = "@ARG"
+                    calculateOffset = "D=M+D"
+                }
+                "this" -> {
+                    loadSegment = "@THIS"
+                    calculateOffset = "D=M+D"
+                }
+                "that" -> {
+                    loadSegment = "@THAT"
+                    calculateOffset = "D=M+D"
+                }
+            //"static" -> {
+            //loadSegment="@16"
+            //calculateOffset="D=A+D"
+            //    popStaticCommand(fileName, offset)
+            //}
+                "pointer" -> {
+                    loadSegment = "@3"
+                    calculateOffset = "D=A+D"
+                }
+                "temp" -> {
+                    loadSegment = "@5"
+                    calculateOffset = "D=A+D"
+                }
+                else -> throw IllegalArgumentException("'$segment' is not a legal VM segment")
+            }
 
-        out_file.appendText("@SP\n")
-        //remove one organ from the stack
-        out_file.appendText("M=M-1\n")
-        //A=offset
-        out_file.appendText("@"+offset+"\n")
-        //D=offset
-        out_file.appendText("D=A\n")
-        //A=addres of segment that we want
-        out_file.appendText(loadSegment+"\n")
-        //D=the exact location where we want to put the value from the stack
-        out_file.appendText(calculateOffset+"\n")
-        //R13 will save this location
-        out_file.appendText("@R13\n")
-        out_file.appendText("M=D\n")
-        //A=0
-        out_file.appendText("@SP\n")
-        out_file.appendText("A=M\n")
-        //D=the value that we want to remove from the stack
-        out_file.appendText("D=M\n")
-        out_file.appendText("@R13\n")
-        out_file.appendText("A=M\n")
-        out_file.appendText("M=D\n\n\n")
+            out_file.appendText("@SP\n")
+            //remove one organ from the stack
+            out_file.appendText("M=M-1\n")
+            //A=offset
+            out_file.appendText("@" + offset + "\n")
+            //D=offset
+            out_file.appendText("D=A\n")
+            //A=addres of segment that we want
+            out_file.appendText(loadSegment + "\n")
+            //D=the exact location where we want to put the value from the stack
+            out_file.appendText(calculateOffset + "\n")
+            //R13 will save this location
+            out_file.appendText("@R13\n")
+            out_file.appendText("M=D\n")
+            //A=0
+            out_file.appendText("@SP\n")
+            out_file.appendText("A=M\n")
+            //D=the value that we want to remove from the stack
+            out_file.appendText("D=M\n")
+            out_file.appendText("@R13\n")
+            out_file.appendText("A=M\n")
+            out_file.appendText("M=D\n\n\n")
+        }
+    }
+
+    private fun popStaticCommand(fileName:String, offset: String) {
+        out_file.appendText("""
+
+            //pop static $offset
+            @SP
+            A=M-1
+            D=M
+            @$fileName.$offset
+            M=D
+            @SP
+            M=M-1
+
+
+
+        """.trimIndent())
+
+        var r=fileName+"."+offset
     }
 
     //implementation of push to stack
@@ -88,6 +112,9 @@ class MemoryAccess(var out_file:File,var segment:String,var offset:String) {
             //update the SP
             out_file.appendText("M=M+1\n\n\n")
 
+        }
+        else if (segment=="static"){
+            pushStaticCommand(fileName,offset)
         }
         else {
 
@@ -111,10 +138,12 @@ class MemoryAccess(var out_file:File,var segment:String,var offset:String) {
                     loadSegment = "@THAT"
                     calculateOffset = "A=M+D"
                 }
-                "static" -> {
-                    loadSegment = "@16"
-                    calculateOffset = "A=A+D"
-                }
+            //"static" -> {
+            //loadSegment = "@16"
+            //calculateOffset = "A=A+D"
+            //   pushStaticCommand(fileName,offset)
+
+            //}
                 "pointer" -> {
                     loadSegment = "@3"
                     calculateOffset = "A=A+D"
@@ -143,10 +172,28 @@ class MemoryAccess(var out_file:File,var segment:String,var offset:String) {
             out_file.appendText("@SP\n")
             //update SP
             out_file.appendText("M=M+1\n\n\n")
+
         }
+
     }
 
+    private fun pushStaticCommand(fileName: String, offset: String) {
+        out_file.appendText("""
 
+
+            //push static $offset
+
+            @$fileName.$offset
+            D=M
+            @SP
+            A=M
+            M=D
+            @SP
+            M=M+1
+
+
+        """.trimIndent())
+    }
 
 
 }

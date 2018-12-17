@@ -1,25 +1,49 @@
 package exe2
 import java.io.File
 //hello shalom
+
+var fileName=" "
 fun main(args: Array<String>){
     var pathDir="C:\\Users\\Nurit\\Downloads\\Exercises\\Targil2\\project 08\\FunctionCalls\\FibonacciElement"
     var newFile= File(pathDir+pathDir.substring(pathDir.lastIndexOf('\\'),pathDir.length) +".asm")
-    var r=pathDir.substring(pathDir.lastIndexOf('\\'),pathDir.length)
+
     if(newFile.exists()){
         newFile.delete()
     }
-    GetStackInitCommand(newFile)
+
+    File(pathDir).walk().forEach {
+        var x=it.name
+        if(it.name=="Sys.vm")
+            GetStackInitCommand(newFile)
+    }
+
     File(pathDir).walk()
             .forEach {
                 if(it.extension=="vm") {
-                    var index=it.name.indexOf(".")
-                    //var newFile= File(pathDir+"\\"+it.name.substring(0,index)+".asm")
+                    newFile.appendText("""
+
+
+
+
+                        //start of file: ${it.name}
+
+
+                    """.trimIndent())
+
+                    fileName=File(it.name).nameWithoutExtension
                     it.forEachLine {
                         if(!it.startsWith("//") && it.length>0){
 
                             ConvertToHack(it, newFile)
                         }
                     }
+
+                    newFile.appendText("""
+
+                        //end of file: ${it.name}
+
+
+                    """.trimIndent())
 
 
                 }
@@ -37,6 +61,8 @@ fun GetStackInitCommand(newFile: File) {
 
 
     """.trimIndent())
+
+    ConvertToHack("call Sys.init 0",newFile)
 }
 
 //The function receives a line in the VM and translates it to HACK
