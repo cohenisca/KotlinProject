@@ -1,6 +1,8 @@
 package exe2
 import java.io.File
-//hello shalom
+//rivky kremer  208817585
+//isca cohen 316179175
+
 
 var fileName=" "
 fun main(args: Array<String>){
