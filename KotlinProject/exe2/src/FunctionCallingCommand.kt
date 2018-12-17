@@ -4,6 +4,7 @@ import java.io.File
  var functionNamaLAbel=""
 var returnAdressCount=0
 
+
 class FunctionCallingCommand(var out_file: File) {
 
     fun buildFunctionDeclaration( functionNane:String, numOfLocals:String){
@@ -22,6 +23,8 @@ class FunctionCallingCommand(var out_file: File) {
         var temp="LabelReturnAddress_"+ returnAdressCount.toString()
         returnAdressCount++
         out_file.appendText("""
+
+
             @$temp
             D=A
             @SP
@@ -35,6 +38,8 @@ class FunctionCallingCommand(var out_file: File) {
         storeSegmentFunction("THIS")
         storeSegmentFunction("THAT")
         out_file.appendText("""
+
+
             @$numOfArgs
             D=A
             @5
@@ -44,7 +49,7 @@ class FunctionCallingCommand(var out_file: File) {
             @ARG
             M=D
             @SP
-            D=A
+            D=M
             @LCL
             M=D
             @$functionNane
@@ -55,6 +60,8 @@ class FunctionCallingCommand(var out_file: File) {
 
     fun storeSegmentFunction(segmentName:String){
         out_file.appendText("""
+
+
             @$segmentName
             D=M
             @SP
@@ -66,6 +73,8 @@ class FunctionCallingCommand(var out_file: File) {
     }
     fun buildReturn(){
         out_file.appendText("""
+
+
             @LCL
             D=M
             @5

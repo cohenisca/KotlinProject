@@ -9,6 +9,8 @@ class ProgramFlowCommand(var out_file: File,var labelName:String) {
 
     fun buildGoto(){
         out_file.appendText("""
+
+
             @$functionNamaLAbel.$labelName
             0;JMP
         """.trimIndent())
@@ -16,6 +18,8 @@ class ProgramFlowCommand(var out_file: File,var labelName:String) {
 
     fun buildIfGoto(){
         out_file.appendText("""
+
+
             @SP
             M=M-1
             A=M
