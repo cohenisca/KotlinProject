@@ -23,6 +23,7 @@ class ProgramFlowCommand(var out_file: File,var labelName:String) {
             @SP
             M=M-1
             A=M
+            //D=the last value from the stack
             D=M
             @$functionNamaLAbel.$labelName
             D;JNE

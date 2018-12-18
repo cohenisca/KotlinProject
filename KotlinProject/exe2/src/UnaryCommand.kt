@@ -19,6 +19,10 @@ class UnaryCommand(var out_file: File) {
         //A=0
         out_file.appendText("@SP\n")
         //A=the adress of the argument
+        out_file.appendText("""
+            //A=the adress of the argument
+
+        """.trimIndent())
         out_file.appendText("A=M-1\n")
         //D=the result
         out_file.appendText(opCmd+"\n")

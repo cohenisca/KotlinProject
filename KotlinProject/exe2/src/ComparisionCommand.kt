@@ -10,14 +10,17 @@ class ComparisionCommand(var out_file: File) {
     //convert eq/gt/lt to hack
     fun Eq(){
         //if D and A equals, D will be 0 and this main the condition is true
+        out_file.appendText("//if D and A equals, D will be 0 and this main the condition is true\n")
         buildComparision("D=D-A","JEQ")
     }
     fun Gt(){
         //if A>D, the answer will be greater than 0 and therefore the condition is true
+        out_file.appendText("//if A>D, the answer will be greater than 0 and therefore the condition is true\n")
         buildComparision("D=A-D","JGT")
     }
     fun Lt(){
         //if A<D, the answer will be greater than 0 and therefore the condition is true
+        out_file.appendText("//if A<D, the answer will be greater than 0 and therefore the condition is true\n")
         buildComparision("D=D-A","JGT")
     }
 
@@ -36,6 +39,7 @@ class ComparisionCommand(var out_file: File) {
         //A=adress of second argument
         out_file.appendText("A=M\n")
         //D=the value of second argument
+        out_file.appendText("//D=the value of second argument\n")
         out_file.appendText("D=M\n")
         //A=0
         out_file.appendText("@SP\n")
@@ -44,8 +48,10 @@ class ComparisionCommand(var out_file: File) {
         //A=adress of first argument
         out_file.appendText("A=M\n")
         //A=the value of first argument
+        out_file.appendText("//A=the value of first argument\n")
         out_file.appendText("A=M\n")
         //the operation, D=result of the operation that we need to do
+        out_file.appendText("//D=result\n")
         out_file.appendText(opCmp+"\n")
         //A=label if the condition is true
         out_file.appendText("@"+ifTrue+"\n")

@@ -6,7 +6,7 @@ import java.io.File
 
 var fileName=" "
 fun main(args: Array<String>){
-    var pathDir="C:\\Users\\Nurit\\Downloads\\Exercises\\Targil2\\project 08\\FunctionCalls\\FibonacciElement"
+    var pathDir="C:\\Users\\Nurit\\Downloads\\Exercises\\Targil2\\project 08\\ProgramFlow\\FibonacciSeries"
     var newFile= File(pathDir+pathDir.substring(pathDir.lastIndexOf('\\'),pathDir.length) +".asm")
 
     if(newFile.exists()){

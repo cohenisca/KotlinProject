@@ -36,11 +36,7 @@ class MemoryAccess(var out_file:File,var segment:String,var offset:String) {
                     loadSegment = "@THAT"
                     calculateOffset = "D=M+D"
                 }
-                //"static" -> {
-                    //loadSegment="@16"
-                    //calculateOffset="D=A+D"
-                //    popStaticCommand(fileName, offset)
-                //}
+
                 "pointer" -> {
                     loadSegment = "@3"
                     calculateOffset = "D=A+D"
@@ -61,14 +57,17 @@ class MemoryAccess(var out_file:File,var segment:String,var offset:String) {
             out_file.appendText("D=A\n")
             //A=addres of segment that we want
             out_file.appendText(loadSegment + "\n")
-            //D=the exact location where we want to put the value from the stack
+            out_file.appendText("//D=the location where we want to put the value from the stack\n")
+            //D=the location where we want to put the value from the stack
             out_file.appendText(calculateOffset + "\n")
             //R13 will save this location
+            out_file.appendText("//R13 will save this location\n")
             out_file.appendText("@R13\n")
             out_file.appendText("M=D\n")
             //A=0
             out_file.appendText("@SP\n")
             out_file.appendText("A=M\n")
+            out_file.appendText("//D=the value that we want to remove from the stack\n")
             //D=the value that we want to remove from the stack
             out_file.appendText("D=M\n")
             out_file.appendText("@R13\n")
@@ -80,7 +79,7 @@ class MemoryAccess(var out_file:File,var segment:String,var offset:String) {
     private fun popStaticCommand(fileName:String, offset: String) {
         out_file.appendText("""
 
-            //pop static $offset
+
             @SP
             A=M-1
             D=M
@@ -138,12 +137,7 @@ class MemoryAccess(var out_file:File,var segment:String,var offset:String) {
                     loadSegment = "@THAT"
                     calculateOffset = "A=M+D"
                 }
-                //"static" -> {
-                    //loadSegment = "@16"
-                    //calculateOffset = "A=A+D"
-                 //   pushStaticCommand(fileName,offset)
 
-                //}
                 "pointer" -> {
                     loadSegment = "@3"
                     calculateOffset = "A=A+D"
@@ -162,15 +156,19 @@ class MemoryAccess(var out_file:File,var segment:String,var offset:String) {
                 //A=the segment that we want
                 out_file.appendText(loadSegment + "\n")
                 //A=the exact location where we want to take the value
+                out_file.appendText("//A=the location where we want to take the value\n")
                 out_file.appendText(calculateOffset + "\n")
                 //D=the value that we want to pun in a stack
+                out_file.appendText("//D=the value that we want to pun in a stack\n")
                 out_file.appendText("D=M\n")
                 out_file.appendText("@SP\n")
                 out_file.appendText("A=M\n")
                 //insert the value to the stack
+                out_file.appendText("//insert the value to the stack\n")
                 out_file.appendText("M=D\n")
                 out_file.appendText("@SP\n")
                 //update SP
+                out_file.appendText("//update SP\n")
                 out_file.appendText("M=M+1\n\n\n")
 
         }
@@ -181,7 +179,7 @@ class MemoryAccess(var out_file:File,var segment:String,var offset:String) {
         out_file.appendText("""
 
 
-            //push static $offset
+
 
             @$fileName.$offset
             D=M

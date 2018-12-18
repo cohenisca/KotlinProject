@@ -8,10 +8,8 @@ var returnAdressCount=0
 class FunctionCallingCommand(var out_file: File) {
 
     fun buildFunctionDeclaration( functionNane:String, numOfLocals:String){
-        //???
         functionNamaLAbel=functionNane
         out_file.appendText("("+functionNane+")")
-        // 0 until numOfLocals.toInt()
         for(i in 1..numOfLocals.toInt())
         {
             ConvertToHack("push constant 0",out_file)
@@ -47,6 +45,7 @@ class FunctionCallingCommand(var out_file: File) {
             @SP
             D=M-D
             @ARG
+            //ARG->the first argument
             M=D
             @SP
             D=M
@@ -62,6 +61,7 @@ class FunctionCallingCommand(var out_file: File) {
         out_file.appendText("""
 
 
+            //store segment $segmentName
             @$segmentName
             D=M
             @SP
@@ -83,9 +83,11 @@ class FunctionCallingCommand(var out_file: File) {
             A=D
             D=M
             @R14
+            //R14=retern address
             M=D
 
             //return value
+
             @SP
             A=M-1
             D=M
