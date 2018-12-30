@@ -6,14 +6,13 @@ import kotlin.reflect.jvm.internal.impl.descriptors.deserialization.PlatformDepe
 enum class TokenTypes {
     keyword, symbol, integerConstant, stringConstant,identifier
 }
-//val TokenTypes= listOf<String>("KEYWORD", "SYMBOL", "INT_CONST","STRING_CONST", "IDENTIFIER")
+
 val KeyWords=listOf<String>("class", "method","function","constructor","int","boolean","char","void","var","static","field","let","do","if","else","while","return","true","false","null","this")
 val fSymbols=listOf<Char>('{','}','(',')','[',']','.',',',';','+','-','*','/','&','|','<','>','=','~')
 val Chars=listOf<Char>('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z')
 var AllTokens:MutableList<Token> = mutableListOf()
 
 var tempvalue:String=""
-var index=0
 var CharsOnLine=""
 var AllLine=""
 
@@ -34,7 +33,7 @@ class Tokenizing(var out_file: File) {
                         AllTokens.add(Token(TokenTypes.integerConstant, i))
                      else {
                         tempvalue = ""
-                        index = 0
+
                         //.add(Token(TokenTypes.IDENTIFIER, i))
                         CharsOnLine = i
                         Q0()
