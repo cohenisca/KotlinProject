@@ -2,15 +2,18 @@ package exe4
 import java.io.File
 
 
-
+var index:Int = 0
 
 open class Parsing(var parse_file: File,var tokens_file:File) {
     var tokensOfFile:List<String>
-    var index:Int=0
 
     init {
-        tokensOfFile=tokens_file.readLines()
-        index=0
+        var temp_file=tokens_file
+
+        tokensOfFile=temp_file.readLines()
+        tokensOfFile-="<tokens>"
+        tokensOfFile-="</tokens>"
+
     }
 
 
@@ -22,9 +25,22 @@ open class Parsing(var parse_file: File,var tokens_file:File) {
         return tokensOfFile[index].substringAfter(' ').substringBefore(' ')
         //return the value between > and <
     }
-    fun writeTOFile(count:Int){
-        for (i in 0..count)
-            parse_file.appendText(getNextToken()+"\n")
+    fun valueOfTokenByIndex(num:Int): String {
+        return tokensOfFile[num].substringAfter(' ').substringBefore(' ')
+        //return the value between > and <
+    }
+    fun writeTokensTOFile(count:Int){
+
+        for (i in 0..(count-1)) {
+            for (i in 0..(countOfTabs-1))
+                parse_file.appendText("  ")
+            parse_file.appendText(getNextToken() + "\n")
+        }
+
+    }
+    fun printTabs(){
+        for (i in 0..(countOfTabs-1))
+            parse_file.appendText("  ")
     }
 
 

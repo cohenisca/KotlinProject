@@ -5,7 +5,7 @@ import java.io.File
 //isca cohen 316179175
 
 fun main(args: Array<String>) {
-    var pathDir = "C:\\Users\\Nurit\\Desktop\\Targil4\\project 10\\ArrayTest"
+    var pathDir = "C:\\Users\\Nurit\\Downloads\\targil3-316179175-208817585"
     var newFile: File
 
 
@@ -37,7 +37,11 @@ fun main(args: Array<String>) {
                                 Tokenizing(newFile).TokenAnalizer(it.substringBefore("/**").split(Regex("\\s")))
                             } else if (!it.contains("/**") and it.contains("*/")) {
                                 Tokenizing(newFile).TokenAnalizer(it.substringAfter("*/").split(Regex("\\s")))
-                            } else
+                            }else if(it.contains("/*") and !it.contains("*/"))
+                                Tokenizing(newFile).TokenAnalizer(it.substringBefore("/**").split(Regex("\\s")))
+                            else if(it.contains("/*") and it.contains("*/"))
+                                Tokenizing(newFile).TokenAnalizer(it.substringBefore("/*").substringAfter("*/").split(Regex("\\s")))
+                            else
                                 Tokenizing(newFile).TokenAnalizer(it.split(Regex("\\s")))
 
                             //ConvertToHack(it, newFile)
@@ -48,6 +52,15 @@ fun main(args: Array<String>) {
                         </tokens>
 
                     """.trimIndent())
+                    index=0
+                    countOfTabs=0
+
+                    var newFile2 = File(pathDir + "\\" + fileName.toString() + ".xml")
+                    if (newFile2.exists()) {
+                        newFile2.delete()
+                    }
+
+                    ProgramStructure(newFile2,newFile).buildClass()
                 }
             }
 }
