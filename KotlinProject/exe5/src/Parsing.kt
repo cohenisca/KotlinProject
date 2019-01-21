@@ -1,9 +1,12 @@
-package exe4
+package exe5
 import java.io.File
 
 
 var index:Int = 0
-
+var classSymbolTable= arrayListOf<SymbolTable>()
+var counterClassSymbolTable= arrayListOf<HelpCounters>()
+var subroutineSymbolTable= arrayListOf<SymbolTable>()
+var countersubroutineSymbolTable= arrayListOf<HelpCounters>()
 open class Parsing(var parse_file: File,var tokens_file:File) {
     var tokensOfFile:List<String>
 
@@ -13,9 +16,16 @@ open class Parsing(var parse_file: File,var tokens_file:File) {
         tokensOfFile=temp_file.readLines()
         tokensOfFile-="<tokens>"
         tokensOfFile-="</tokens>"
+        initCounters(counterClassSymbolTable)
+        initCounters(countersubroutineSymbolTable)
 
     }
-
+    fun initCounters(_list: ArrayList<HelpCounters>){
+        _list.add(HelpCounters("static",0))
+        _list.add(HelpCounters("field",0))
+        _list.add(HelpCounters("var",0))
+        _list.add(HelpCounters("argument",0))
+    }
 
     fun getNextToken(): String {
         return tokensOfFile[index++]
@@ -29,12 +39,10 @@ open class Parsing(var parse_file: File,var tokens_file:File) {
         return tokensOfFile[num].substringAfter(' ').substringBefore(' ')
         //return the value between > and <
     }
-    fun writeTokensTOFile(count:Int){
+    fun verifyAndNextToken(count:Int){
 
         for (i in 0..(count-1)) {
-            for (i in 0..(countOfTabs -1))
-                parse_file.appendText("  ")
-            parse_file.appendText(getNextToken() + "\n")
+            getNextToken()
         }
 
     }

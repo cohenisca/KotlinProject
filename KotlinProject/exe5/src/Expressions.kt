@@ -1,4 +1,4 @@
-package exe4
+package exe5
 import java.io.File
 
 val listOfOp= listOf<String>("+","-","*","/","&amp;","|","&lt;","&gt;","=")
@@ -11,7 +11,7 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
         countOfTabs++
         buildTerm()
         while(index <tokensOfFile.lastIndex && valueOfToken() in listOfOp){
-            writeTokensTOFile(1)// op
+            verifyAndNextToken(1)// op
             buildTerm()
         }
         countOfTabs--
@@ -26,26 +26,26 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
         countOfTabs++
         if (index <tokensOfFile.lastIndex){
             when(AllTokens[index].t){
-                TokenTypes.integerConstant ->writeTokensTOFile(1)//integerConstant
-                TokenTypes.stringConstant ->writeTokensTOFile(1)//string
+                TokenTypes.integerConstant ->verifyAndNextToken(1)//integerConstant
+                TokenTypes.stringConstant ->verifyAndNextToken(1)//string
                 TokenTypes.keyword ->{
                     if ((AllTokens[index].v) in arrayOf("true","false","null","this"))
-                        writeTokensTOFile(1)
+                        verifyAndNextToken(1)
                 }//keyword}
                 TokenTypes.symbol ->{
                     when(AllTokens[index].v) {
                         "-"->{
-                            writeTokensTOFile(1)
+                            verifyAndNextToken(1)
                             buildTerm()
                         }
                         "~"->{
-                            writeTokensTOFile(1)
+                            verifyAndNextToken(1)
                             buildTerm()
                         }
                         "("->{
-                            writeTokensTOFile(1)//(
+                            verifyAndNextToken(1)//(
                             buildExpression()
-                            writeTokensTOFile(1)//)
+                            verifyAndNextToken(1)//)
                         }
                     }
                 }
@@ -55,9 +55,9 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
                         when(valueOfTokenByIndex(index +1)){
                             "["->{
                                 d=1
-                                writeTokensTOFile(2)//varName [
+                                verifyAndNextToken(2)//varName [
                                 buildExpression()
-                                writeTokensTOFile(1)//]
+                                verifyAndNextToken(1)//]
                             }
                             "("->{
                                 d=1
@@ -69,12 +69,12 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
                             }
                             else-> {
                                 d=1
-                                writeTokensTOFile(1)
+                                verifyAndNextToken(1)
                             }//varName
                         }
                     }
                     if(d==0)
-                        writeTokensTOFile(1)//varName
+                        verifyAndNextToken(1)//varName
                 }
             }
 
@@ -90,14 +90,14 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
         if (index <tokensOfFile.lastIndex-1 ){
             when(valueOfTokenByIndex(index +1)){
                 "("->{
-                    writeTokensTOFile(2)//subroutineName (
+                    verifyAndNextToken(2)//subroutineName (
                     buildExpressionList()
-                    writeTokensTOFile(1)//)
+                    verifyAndNextToken(1)//)
                 }
                 "."->{
-                    writeTokensTOFile(4)// className| varName . subroutineName (
+                    verifyAndNextToken(4)// className| varName . subroutineName (
                     buildExpressionList()
-                    writeTokensTOFile(1)//)
+                    verifyAndNextToken(1)//)
                 }
             }
         }
@@ -111,7 +111,7 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
         if(index <tokensOfFile.lastIndex && valueOfToken()!=")"){
             buildExpression()
             while(index <tokensOfFile.lastIndex && valueOfToken()==","){
-                writeTokensTOFile(1)//,
+                verifyAndNextToken(1)//,
                 buildExpression()
             }
         }

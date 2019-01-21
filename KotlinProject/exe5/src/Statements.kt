@@ -1,4 +1,4 @@
-package exe4
+package exe5
 import java.io.File
 
 class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, tokens_file) {
@@ -32,11 +32,11 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
         printTabs()
         parse_file.appendText("<returnStatement>\n")
         countOfTabs++
-        writeTokensTOFile(1)// return
+        verifyAndNextToken(1)// return
         if (index <tokensOfFile.lastIndex && valueOfToken()!=";"){
             Expressions(parse_file, tokens_file).buildExpression()
         }
-        writeTokensTOFile(1)// ;
+        verifyAndNextToken(1)// ;
         countOfTabs--
         printTabs()
         parse_file.appendText("</returnStatement>\n")
@@ -47,9 +47,9 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
         printTabs()
         parse_file.appendText("<doStatement>\n")
         countOfTabs++
-        writeTokensTOFile(1)//do
+        verifyAndNextToken(1)//do
         Expressions(parse_file, tokens_file).buildSubroutineCall()
-        writeTokensTOFile(1)// ;
+        verifyAndNextToken(1)// ;
         countOfTabs--
         printTabs()
         parse_file.appendText("</doStatement>\n")
@@ -60,11 +60,11 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
         printTabs()
         parse_file.appendText("<whileStatement>\n")
         countOfTabs++
-        writeTokensTOFile(2)// while (
+        verifyAndNextToken(2)// while (
         Expressions(parse_file, tokens_file).buildExpression()
-        writeTokensTOFile(2)// ) {
+        verifyAndNextToken(2)// ) {
         buildStatements()
-        writeTokensTOFile(1)//}
+        verifyAndNextToken(1)//}
         countOfTabs--
         printTabs()
         parse_file.appendText("</whileStatement>\n")
@@ -75,15 +75,15 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
         printTabs()
         parse_file.appendText("<ifStatement>\n")
         countOfTabs++
-        writeTokensTOFile(2)// if (
+        verifyAndNextToken(2)// if (
         Expressions(parse_file, tokens_file).buildExpression()
-        writeTokensTOFile(2)// ) {
+        verifyAndNextToken(2)// ) {
         buildStatements()
-        writeTokensTOFile(1)// }
+        verifyAndNextToken(1)// }
         if(index <tokensOfFile.lastIndex && valueOfToken()=="else"){
-            writeTokensTOFile(2)//else {
+            verifyAndNextToken(2)//else {
             buildStatements()
-            writeTokensTOFile(1)//}
+            verifyAndNextToken(1)//}
         }
         countOfTabs--
         printTabs()
@@ -95,15 +95,15 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
         printTabs()
         parse_file.appendText("<letStatement>\n")
         countOfTabs++
-        writeTokensTOFile(2)// let varName
+        verifyAndNextToken(2)// let varName
         if (index <tokensOfFile.lastIndex && valueOfToken()=="["){
-            writeTokensTOFile(1)//[
+            verifyAndNextToken(1)//[
             Expressions(parse_file, tokens_file).buildExpression()
-            writeTokensTOFile(1)// ]
+            verifyAndNextToken(1)// ]
         }
-        writeTokensTOFile(1)// =
+        verifyAndNextToken(1)// =
         Expressions(parse_file, tokens_file).buildExpression()
-        writeTokensTOFile(1)// ;
+        verifyAndNextToken(1)// ;
         countOfTabs--
         printTabs()
         parse_file.appendText("</letStatement>\n")

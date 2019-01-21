@@ -1,2 +1,2 @@
-package exe4
+package exe5
 data class Token(var t: TokenTypes, var v:String){}

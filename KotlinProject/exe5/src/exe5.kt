@@ -1,4 +1,5 @@
-package exe4
+package exe5
+
 import java.io.File
 
 //rivky kremer  208817585
@@ -55,7 +56,7 @@ fun main(args: Array<String>) {
                     index=0
                     countOfTabs=0
 
-                    var newFile2 = File(pathDir + "\\" + fileName.toString() + ".xml")
+                    var newFile2 = File(pathDir + "\\" + fileName.toString() + ".vm")
                     if (newFile2.exists()) {
                         newFile2.delete()
                     }

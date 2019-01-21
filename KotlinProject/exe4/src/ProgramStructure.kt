@@ -1,5 +1,4 @@
 package exe4
-
 import java.io.File
 
 
@@ -24,7 +23,7 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
     }
 
     private fun buildSubroutineDec() {
-        while (index<Parsing(parse_file, tokens_file).tokensOfFile.lastIndex &&(Parsing(parse_file, tokens_file).valueOfToken()in arrayOf("constructor","function","method"))){
+        while (index < Parsing(parse_file, tokens_file).tokensOfFile.lastIndex &&(Parsing(parse_file, tokens_file).valueOfToken()in arrayOf("constructor","function","method"))){
             printTabs()
             parse_file.appendText("<subroutineDec>\n")
             countOfTabs++
@@ -41,7 +40,7 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
         }
     }
     private fun buildClassVarDec() {
-        while (index<Parsing(parse_file, tokens_file).tokensOfFile.lastIndex && (Parsing(parse_file, tokens_file).valueOfToken()=="static" || Parsing(parse_file, tokens_file).valueOfToken()=="field")){
+        while (index < Parsing(parse_file, tokens_file).tokensOfFile.lastIndex && (Parsing(parse_file, tokens_file).valueOfToken()=="static" || Parsing(parse_file, tokens_file).valueOfToken()=="field")){
             printTabs()
             parse_file.appendText("""
                 <classVarDec>
@@ -49,7 +48,7 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
             """.trimIndent())
             countOfTabs++
             Parsing(parse_file, tokens_file).writeTokensTOFile(3)// static|field + type + name
-            while (index<Parsing(parse_file, tokens_file).tokensOfFile.lastIndex && Parsing(parse_file, tokens_file).valueOfToken()==","){
+            while (index < Parsing(parse_file, tokens_file).tokensOfFile.lastIndex && Parsing(parse_file, tokens_file).valueOfToken()==","){
                 Parsing(parse_file, tokens_file).writeTokensTOFile(2)// , name
             }
             Parsing(parse_file, tokens_file).writeTokensTOFile(1)// ;
@@ -65,10 +64,10 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
         parse_file.appendText("<subroutineBody>\n")
         countOfTabs++
         Parsing(parse_file, tokens_file).writeTokensTOFile(1)//{
-        while (index<Parsing(parse_file, tokens_file).tokensOfFile.lastIndex && Parsing(parse_file, tokens_file).valueOfToken()=="var"){
+        while (index < Parsing(parse_file, tokens_file).tokensOfFile.lastIndex && Parsing(parse_file, tokens_file).valueOfToken()=="var"){
             buildVarDec()
         }
-        Statements(parse_file,tokens_file).buildStatements()
+        Statements(parse_file, tokens_file).buildStatements()
         Parsing(parse_file, tokens_file).writeTokensTOFile(1)//}
         countOfTabs--
         printTabs()
@@ -83,7 +82,7 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
         Parsing(parse_file, tokens_file).writeTokensTOFile(1)//var
         buildType()
         Parsing(parse_file, tokens_file).writeTokensTOFile(1)//varName
-        while (index<Parsing(parse_file, tokens_file).tokensOfFile.lastIndex && Parsing(parse_file, tokens_file).valueOfToken()==","){
+        while (index < Parsing(parse_file, tokens_file).tokensOfFile.lastIndex && Parsing(parse_file, tokens_file).valueOfToken()==","){
             Parsing(parse_file, tokens_file).writeTokensTOFile(2)// , varName
         }
         Parsing(parse_file, tokens_file).writeTokensTOFile(1)//;
@@ -98,10 +97,10 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
         printTabs()
         parse_file.appendText("<parameterList>\n")
         countOfTabs++
-        if(index<Parsing(parse_file, tokens_file).tokensOfFile.lastIndex && Parsing(parse_file, tokens_file).valueOfToken()!=")"){
+        if(index < Parsing(parse_file, tokens_file).tokensOfFile.lastIndex && Parsing(parse_file, tokens_file).valueOfToken()!=")"){
             buildType()
             Parsing(parse_file, tokens_file).writeTokensTOFile(1)//var Name
-            while (index<Parsing(parse_file, tokens_file).tokensOfFile.lastIndex&& Parsing(parse_file, tokens_file).valueOfToken()==","){
+            while (index < Parsing(parse_file, tokens_file).tokensOfFile.lastIndex&& Parsing(parse_file, tokens_file).valueOfToken()==","){
                 Parsing(parse_file, tokens_file).writeTokensTOFile(1)// ,
                 buildType()
                 Parsing(parse_file, tokens_file).writeTokensTOFile(1)//varName
