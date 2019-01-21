@@ -3,15 +3,9 @@ import java.io.File
 
 class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, tokens_file) {
     fun buildStatements() {
-        printTabs()
-        parse_file.appendText("<statements>\n")
-        countOfTabs++
         while (index <tokensOfFile.lastIndex && valueOfToken()!="}"){
             buildStatement()
         }
-        countOfTabs--
-        printTabs()
-        parse_file.appendText("</statements>\n")
 
 
     }
@@ -29,17 +23,13 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
     }
 
     private fun buildReturnStatement() {
-        printTabs()
-        parse_file.appendText("<returnStatement>\n")
-        countOfTabs++
+       
         verifyAndNextToken(1)// return
         if (index <tokensOfFile.lastIndex && valueOfToken()!=";"){
             Expressions(parse_file, tokens_file).buildExpression()
         }
         verifyAndNextToken(1)// ;
-        countOfTabs--
-        printTabs()
-        parse_file.appendText("</returnStatement>\n")
+
 
     }
 
