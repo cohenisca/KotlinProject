@@ -24,9 +24,10 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
 
     private fun buildSubroutineDec() {
         //parse_file.appendText("//buildSubroutineDec\n")
-        subroutineSymbolTable.clear()
-        initCounters(countersubroutineSymbolTable)
+
         while (index < tokensOfFile.lastIndex &&(valueOfToken()in arrayOf("constructor","function","method"))){
+            subroutineSymbolTable.clear()
+            initCounters(countersubroutineSymbolTable)
             var functionType=valueOfToken()
             verifyAndNextToken(1)//subroutine declaration
             buildType()
