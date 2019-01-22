@@ -8,9 +8,8 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
     fun buildExpression() {
         //parse_file.appendText("//buildExpression\n")
         buildTerm()
-        var op:String
-        op=valueOfToken()
         while(index <tokensOfFile.lastIndex && valueOfToken() in listOfOp){
+            var op=valueOfToken()
             verifyAndNextToken(1)// op
             buildTerm()
             when(op){

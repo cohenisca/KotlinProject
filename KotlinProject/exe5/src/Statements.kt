@@ -103,7 +103,7 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
             parse_file.appendText("label IF_END"+ ifLabelCounter+"\n")
         }
         else
-            parse_file.appendText("label IF_FALSE")
+            parse_file.appendText("label IF_FALSE$ifLabelCounter\n")
 
         ifLabelCounter++
     }

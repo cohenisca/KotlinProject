@@ -36,9 +36,6 @@ open class Parsing(var parse_file: File,var tokens_file:File) {
         //var x= tokensOfFile[index].substringBeforeLast(' ')
         //return tokensOfFile[index].substringAfter(' ').substringBefore(' ')
        var s=tokensOfFile[index].substringAfter(' ').substringBeforeLast(' ')
-        var t:Int
-        if (s=="+"||s=="-")
-             t=8
         return s
         //return the value between > and <
     }
