@@ -6,41 +6,72 @@ val listOfOp= listOf<String>("+","-","*","/","&amp;","|","&lt;","&gt;","=")
 class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tokens_file) {
 
     fun buildExpression() {
-        printTabs()
-        parse_file.appendText("<expression>\n")
-        countOfTabs++
         buildTerm()
+        var op:String
+        op=valueOfToken()
         while(index <tokensOfFile.lastIndex && valueOfToken() in listOfOp){
             verifyAndNextToken(1)// op
             buildTerm()
         }
-        countOfTabs--
-        printTabs()
-        parse_file.appendText("</expression>\n")
+        when(op){
+            "+"->parse_file.appendText("add\n")
+            "-"->parse_file.appendText("sub\n")
+            "*"->parse_file.appendText("call Math.multiply 2\n")
+            "/"->parse_file.appendText("call Math.divide 2\n")
+            "&amp"->parse_file.appendText("and\n")
+            "|"->parse_file.appendText("or\n")
+            "&lt"->parse_file.appendText("lt\n")
+            "&gt"->parse_file.appendText("gt\n")
+            "="->parse_file.appendText("eq\n")
+        }
 
     }
 
     private fun buildTerm() {
-        printTabs()
-        parse_file.appendText("<term>\n")
-        countOfTabs++
         if (index <tokensOfFile.lastIndex){
             when(AllTokens[index].t){
-                TokenTypes.integerConstant ->verifyAndNextToken(1)//integerConstant
-                TokenTypes.stringConstant ->verifyAndNextToken(1)//string
+                TokenTypes.integerConstant -> {
+                    parse_file.appendText("push constant ${valueOfToken()}\n")
+                    verifyAndNextToken(1)//integerConstant
+                }
+                TokenTypes.stringConstant -> {
+                    var word=valueOfToken()
+                    parse_file.appendText("""
+                        push constant ${word.length+1}
+                        call String.new 1
+                    """.trimIndent())
+                    for (i in word){
+                        parse_file.appendText("""
+                            push constant ${i.toInt()}
+                            call String.appendChar 2
+                        """.trimIndent())
+                    }
+                    verifyAndNextToken(1)//string
+                }
                 TokenTypes.keyword ->{
-                    if ((AllTokens[index].v) in arrayOf("true","false","null","this"))
-                        verifyAndNextToken(1)
+                    when ((AllTokens[index].v))
+                    {
+                        "true"->parse_file.appendText("""
+                            push constant 0
+                            not
+                        """.trimIndent())
+                        "null"->parse_file.appendText("push constant 0\n")
+                        "false"->parse_file.appendText("push constant 0\n")
+                        "this"->parse_file.appendText("push pointer 0\n")
+                    }
+                    verifyAndNextToken(1)
                 }//keyword}
                 TokenTypes.symbol ->{
                     when(AllTokens[index].v) {
                         "-"->{
                             verifyAndNextToken(1)
                             buildTerm()
+                            parse_file.appendText("neg\n")
                         }
                         "~"->{
                             verifyAndNextToken(1)
                             buildTerm()
+                            parse_file.appendText("not\n")
                         }
                         "("->{
                             verifyAndNextToken(1)//(
@@ -55,8 +86,23 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
                         when(valueOfTokenByIndex(index +1)){
                             "["->{
                                 d=1
+                                var n=valueOfToken()
                                 verifyAndNextToken(2)//varName [
                                 buildExpression()
+                                var row= subroutineSymbolTable.firstOrNull { it._name==n }
+                                if (row==null)
+                                    row= classSymbolTable.firstOrNull { it._name==n }
+                                when (row!!._segment) {
+                                    "var"->parse_file.appendText("push local ${row._index}")
+                                    "argument"->parse_file.appendText("push argument ${row._index}")
+                                    "field"->parse_file.appendText("push this ${row._index}")
+                                    "static"->parse_file.appendText("push static ${row._index}")
+                                }
+                                parse_file.appendText("""
+                                    add
+                                    pop pointer 1
+                                    push that 0
+                                """.trimIndent())
                                 verifyAndNextToken(1)//]
                             }
                             "("->{
@@ -69,55 +115,92 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
                             }
                             else-> {
                                 d=1
+                                var n=valueOfToken()
                                 verifyAndNextToken(1)
+                                var row= subroutineSymbolTable.firstOrNull { it._name==n }
+                                if (row==null)
+                                    row= classSymbolTable.firstOrNull { it._name==n }
+                                when (row!!._segment) {
+                                    "var"->parse_file.appendText("push local ${row._index}")
+                                    "argument"->parse_file.appendText("push argument ${row._index}")
+                                    "field"->parse_file.appendText("push this ${row._index}")
+                                    "static"->parse_file.appendText("push static ${row._index}")
+                                }
                             }//varName
                         }
                     }
-                    if(d==0)
+                    if(d==0) {
+                        var n=valueOfToken()
+                        verifyAndNextToken(1)
+                        var row = subroutineSymbolTable.firstOrNull { it._name == n }
+                        if (row == null)
+                            row = classSymbolTable.firstOrNull { it._name == n }
+                        when (row!!._segment) {
+                            "var" -> parse_file.appendText("push local ${row._index}")
+                            "argument" -> parse_file.appendText("push argument ${row._index}")
+                            "field" -> parse_file.appendText("push this ${row._index}")
+                            "static" -> parse_file.appendText("push static ${row._index}")
+                        }
                         verifyAndNextToken(1)//varName
+                    }
                 }
             }
 
         }
-        countOfTabs--
-        printTabs()
-        parse_file.appendText("</term>\n")
+
 
     }
 
     fun buildSubroutineCall() {
-        //parse_file.appendText("<subroutineCall>\n")
         if (index <tokensOfFile.lastIndex-1 ){
+            var subName:String
+            var classOrVar_Name:String
+            var n:Int
             when(valueOfTokenByIndex(index +1)){
                 "("->{
+                    subName=valueOfToken()
                     verifyAndNextToken(2)//subroutineName (
-                    buildExpressionList()
+                    n=buildExpressionList()+1
                     verifyAndNextToken(1)//)
+                    parse_file.appendText("""
+                        push pointer 0
+                        call $class_Name.$subName n
+                    """.trimIndent())
                 }
                 "."->{
-                    verifyAndNextToken(4)// className| varName . subroutineName (
-                    buildExpressionList()
+                    classOrVar_Name=valueOfToken()
+                    verifyAndNextToken(2)// className| varName .
+                    subName=valueOfToken()
+                    verifyAndNextToken(2)//subroutineName (
+                    n=buildExpressionList()
                     verifyAndNextToken(1)//)
+                    if(classOrVar_Name== class_Name){
+                        parse_file.appendText("call $class_Name.$subName $n\n")
+                    }
+                    else if(classSymbolTable.firstOrNull { it._name==classOrVar_Name }!= null){
+                        var row=classSymbolTable.firstOrNull { it._name==classOrVar_Name }
+                        parse_file.appendText("push ${row!!._segment} ${row!!._index}\n")
+                    }
+                    else{
+                        parse_file.appendText("call $classOrVar_Name.$subName $n\n")
+                    }
                 }
             }
         }
-        //parse_file.appendText("</subroutineCall>\n")
     }
 
-    private fun buildExpressionList() {
-        printTabs()
-        parse_file.appendText("<expressionList>\n")
-        countOfTabs++
+    private fun buildExpressionList() :Int{
+        var paramCounter=0
         if(index <tokensOfFile.lastIndex && valueOfToken()!=")"){
             buildExpression()
+            paramCounter++
             while(index <tokensOfFile.lastIndex && valueOfToken()==","){
                 verifyAndNextToken(1)//,
                 buildExpression()
+                paramCounter++
             }
         }
-        countOfTabs--
-        printTabs()
-        parse_file.appendText("</expressionList>\n")
+        return paramCounter
 
     }
 }
