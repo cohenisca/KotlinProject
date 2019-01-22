@@ -21,6 +21,7 @@ open class Parsing(var parse_file: File,var tokens_file:File) {
 
     }
     fun initCounters(_list: ArrayList<HelpCounters>){
+        _list.clear()
         _list.add(HelpCounters("static",0))
         _list.add(HelpCounters("field",0))
         _list.add(HelpCounters("var",0))
@@ -32,7 +33,13 @@ open class Parsing(var parse_file: File,var tokens_file:File) {
     }
 
     fun valueOfToken(): String {
-        return tokensOfFile[index].substringAfter(' ').substringBefore(' ')
+        //var x= tokensOfFile[index].substringBeforeLast(' ')
+        //return tokensOfFile[index].substringAfter(' ').substringBefore(' ')
+       var s=tokensOfFile[index].substringAfter(' ').substringBeforeLast(' ')
+        var t:Int
+        if (s=="+"||s=="-")
+             t=8
+        return s
         //return the value between > and <
     }
     fun valueOfTokenByIndex(num:Int): String {

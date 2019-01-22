@@ -110,7 +110,7 @@ class Tokenizing(var out_file: File) {
      fun Q1() {
          if(!CharsOnLine.isEmpty()){
              tempvalue += CharsOnLine[0]
-             if(tempvalue in KeyWords){
+             if(tempvalue in KeyWords && (CharsOnLine.length==1||!(CharsOnLine[1] in Chars))){
                  AllTokens.add(Token(TokenTypes.keyword, tempvalue))
                  CharsOnLine = CharsOnLine.removeRange(0,1)
                  tempvalue =""

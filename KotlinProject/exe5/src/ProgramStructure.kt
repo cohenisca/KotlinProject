@@ -8,6 +8,7 @@ var class_Name:String=""
 class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file, tokens_file) {
 
     fun buildClass(){
+        //parse_file.appendText("//buildClass\n")
         classSymbolTable.clear()
         initCounters(counterClassSymbolTable)
         verifyAndNextToken(1)//class
@@ -22,6 +23,7 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
     }
 
     private fun buildSubroutineDec() {
+        //parse_file.appendText("//buildSubroutineDec\n")
         subroutineSymbolTable.clear()
         initCounters(countersubroutineSymbolTable)
         while (index < tokensOfFile.lastIndex &&(valueOfToken()in arrayOf("constructor","function","method"))){
@@ -33,7 +35,12 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
             verifyAndNextToken(1)// + (
             if(functionType=="method") {
                 subroutineSymbolTable.add(SymbolTable("this", class_Name, "argument", 0))
-                updateCounters(countersubroutineSymbolTable,"argument")
+                //updateCounters(countersubroutineSymbolTable,"argument")
+                for(i in countersubroutineSymbolTable){
+                    if(i._Segment=="argument") {
+                        i._Index++
+                    }
+                }
             }
             buildParameterList()
             verifyAndNextToken(1)// )
@@ -43,7 +50,7 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
         }
     }
     fun updateCounters(_list: ArrayList<HelpCounters>,Kind:String):Int{
-        for(i in counterClassSymbolTable){
+        for(i in _list){
             if(i._Segment==Kind) {
                 i._Index++
                  return (i._Index-1)
@@ -52,10 +59,18 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
         return 0
     }
     private fun buildClassVarDec() {
+        //parse_file.appendText("//buildClassVarDec\n")
         while (index < tokensOfFile.lastIndex && (valueOfToken()=="static" || valueOfToken()=="field")){
             var kind=valueOfToken()
             verifyAndNextToken(1)//static|field
-            var offset=updateCounters(counterClassSymbolTable,kind)
+            //var offset=updateCounters(counterClassSymbolTable,kind)
+            var offset=0
+            for(i in counterClassSymbolTable){
+                if(i._Segment==kind) {
+                    i._Index++
+                    offset= i._Index-1
+                }
+            }
             var Type=valueOfToken()
             verifyAndNextToken(1)//type
             var row=SymbolTable(valueOfToken(),Type,kind,offset)
@@ -63,7 +78,13 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
             classSymbolTable.add(row)
             while (index < tokensOfFile.lastIndex && valueOfToken()==","){
                 verifyAndNextToken(1)// ,
-                offset=updateCounters(counterClassSymbolTable,kind)
+                //offset=updateCounters(counterClassSymbolTable,kind)
+                for(i in counterClassSymbolTable){
+                    if(i._Segment==kind) {
+                        i._Index++
+                        offset= i._Index-1
+                    }
+                }
                 row= SymbolTable(valueOfToken(),Type,kind,offset)
                 verifyAndNextToken(1)//varName
                 classSymbolTable.add(row)
@@ -75,7 +96,7 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
     }
 
     private fun buildSubroutineBody(function_type:String,function_name:String) {
-
+        //parse_file.appendText("//buildSubroutineBody\n")
         verifyAndNextToken(1)//{
         while (index < tokensOfFile.lastIndex && valueOfToken()=="var"){
             buildVarDec()
@@ -111,19 +132,32 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
     }
 
     private fun buildVarDec() {
-
+        //parse_file.appendText("//buildVarDec\n")
         verifyAndNextToken(1)//var
         var t=valueOfToken()
         verifyAndNextToken(1)//type
         var n=valueOfToken()
         verifyAndNextToken(1)//varName
-        var offset=updateCounters(countersubroutineSymbolTable,"var")
+        //var offset=updateCounters(countersubroutineSymbolTable,"var")
+        var offset=0
+        for(i in countersubroutineSymbolTable){
+            if(i._Segment=="var") {
+                i._Index++
+                offset= i._Index-1
+            }
+        }
         subroutineSymbolTable.add(SymbolTable(n,t,"var",offset))
         while (index < tokensOfFile.lastIndex && valueOfToken()==","){
             verifyAndNextToken(1)// ,
             n=valueOfToken()
             verifyAndNextToken(1)//varName
-            offset=updateCounters(countersubroutineSymbolTable,"var")
+            //offset=updateCounters(countersubroutineSymbolTable,"var")
+            for(i in countersubroutineSymbolTable){
+                if(i._Segment=="var") {
+                    i._Index++
+                    offset= i._Index-1
+                }
+            }
             subroutineSymbolTable.add(SymbolTable(n,t,"var",offset))
         }
         verifyAndNextToken(1)//;
@@ -132,13 +166,20 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
     }
 
     private fun buildParameterList() {
-
+        //parse_file.appendText("//buildParameterList\n")
         if(index < tokensOfFile.lastIndex && valueOfToken()!=")"){
             var t=valueOfToken()
             verifyAndNextToken(1)//type
             var n=valueOfToken()
             verifyAndNextToken(1)//varName
-            var offset=updateCounters(countersubroutineSymbolTable,"argument")
+            //var offset=updateCounters(countersubroutineSymbolTable,"argument")
+            var offset=0
+            for(i in countersubroutineSymbolTable){
+                if(i._Segment=="argument") {
+                    i._Index++
+                    offset= i._Index-1
+                }
+            }
             subroutineSymbolTable.add(SymbolTable(n,t,"argument",offset))
             while (index < tokensOfFile.lastIndex&& valueOfToken()==","){
                 verifyAndNextToken(1)// ,
@@ -146,7 +187,14 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
                 verifyAndNextToken(1)//type
                 n=valueOfToken()
                 verifyAndNextToken(1)//var name
-                offset=updateCounters(countersubroutineSymbolTable,"argument")
+                //offset=updateCounters(countersubroutineSymbolTable,"argument")
+
+                for(i in countersubroutineSymbolTable){
+                    if(i._Segment=="argument") {
+                        i._Index++
+                        offset= i._Index-1
+                    }
+                }
                 subroutineSymbolTable.add(SymbolTable(n,t,"argument",offset))
 
             }
@@ -156,6 +204,7 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
     }
 
     private fun buildType() {
+        //parse_file.appendText("//buildType\n")
         verifyAndNextToken(1)//type
     }
 

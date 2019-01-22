@@ -6,7 +6,7 @@ import java.io.File
 //isca cohen 316179175
 
 fun main(args: Array<String>) {
-    var pathDir = "C:\\Users\\Nurit\\Desktop\\targil4_316179175_208817585\\Targil4\\project 10\\ArrayTest"
+    var pathDir = "C:\\Users\\Nurit\\Downloads\\Exercises\\Targil5\\project 11\\ComplexArrays"
     var newFile: File
 
 

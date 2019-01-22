@@ -5,6 +5,7 @@ var whileLabelCounter=0
 var ifLabelCounter=0
 class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, tokens_file) {
     fun buildStatements() {
+        //parse_file.appendText("//buildStatements\n")
         while (index <tokensOfFile.lastIndex && valueOfToken()!="}"){
             buildStatement()
         }
@@ -13,6 +14,7 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
     }
 
     private fun buildStatement() {
+        //parse_file.appendText("//buildStatement\n")
         if (index <tokensOfFile.lastIndex){
             when(valueOfToken()){
                 "let"->buildLetStatement()
@@ -25,7 +27,7 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
     }
 
     private fun buildReturnStatement() {
-
+        //parse_file.appendText("//buildReturnStatement\n")
         verifyAndNextToken(1)// return
         if (index <tokensOfFile.lastIndex && valueOfToken()!=";"){
             Expressions(parse_file, tokens_file).buildExpression()
@@ -35,6 +37,7 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
             parse_file.appendText("""
                 push constant 0
                 return
+
             """.trimIndent())
         verifyAndNextToken(1)// ;
 
@@ -42,6 +45,7 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
     }
 
     private fun buildDoStatement() {
+        //parse_file.appendText("//buildDoStatement\n")
         verifyAndNextToken(1)//do
         Expressions(parse_file, tokens_file).buildSubroutineCall()
         verifyAndNextToken(1)// ;
@@ -51,7 +55,8 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
     }
 
     private fun buildWhileStatement() {
-        whileLabelCounter++
+        //parse_file.appendText("//buildWhileStatement\n")
+
         verifyAndNextToken(2)// while (
         parse_file.appendText("label WHILE_EXP"+ whileLabelCounter+"\n")
         Expressions(parse_file, tokens_file).buildExpression()
@@ -59,18 +64,22 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
         parse_file.appendText("""
             not
             if-goto WHILE_END$whileLabelCounter
+
         """.trimIndent())
         buildStatements()
         verifyAndNextToken(1)//}
         parse_file.appendText("""
             goto WHILE_EXP$whileLabelCounter
             label WHILE_END$whileLabelCounter
+
         """.trimIndent())
+        whileLabelCounter++
 
     }
 
     private fun buildIfStatement() {
-        ifLabelCounter++
+        //parse_file.appendText("//buildIfStatement\n")
+
         verifyAndNextToken(2)// if (
         Expressions(parse_file, tokens_file).buildExpression()
         verifyAndNextToken(2)// ) {
@@ -78,6 +87,7 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
             if-goto IF_TRUE$ifLabelCounter
             goto IF_FALSE$ifLabelCounter
             label IF_TRUE$ifLabelCounter
+
         """.trimIndent())
         buildStatements()
         verifyAndNextToken(1)// }
@@ -85,6 +95,7 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
             parse_file.appendText("""
                 goto IF_END$ifLabelCounter
                 label IF_FALSE$ifLabelCounter
+
             """.trimIndent())
             verifyAndNextToken(2)//else {
             buildStatements()
@@ -94,11 +105,11 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
         else
             parse_file.appendText("label IF_FALSE")
 
-
+        ifLabelCounter++
     }
 
     private fun buildLetStatement() {
-
+        //parse_file.appendText("//buildLetStatement\n")
         verifyAndNextToken(1)// let
         var name=valueOfToken()
         verifyAndNextToken(1)//varName
@@ -110,19 +121,20 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
             Expressions(parse_file, tokens_file).buildExpression()
             verifyAndNextToken(1)// ]
             when (row!!._segment) {
-                "var"->parse_file.appendText("push local ${row._index}")
-                "argument"->parse_file.appendText("push argument ${row._index}")
-                "field"->parse_file.appendText("push this ${row._index}")
-                "static"->parse_file.appendText("push static ${row._index}")
+                "var"->parse_file.appendText("push local ${row._index}\n")
+                "argument"->parse_file.appendText("push argument ${row._index}\n")
+                "field"->parse_file.appendText("push this ${row._index}\n")
+                "static"->parse_file.appendText("push static ${row._index}\n")
             }
             parse_file.appendText("add"+"\n")
             verifyAndNextToken(1)//=
             Expressions(parse_file, tokens_file).buildExpression()
             parse_file.appendText("""
                 pop temp 0
-                pop pointer 0
+                pop pointer 1
                 push temp 0
                 pop that 0
+
             """.trimIndent())
             verifyAndNextToken(1)//;
 
@@ -132,10 +144,10 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
             Expressions(parse_file, tokens_file).buildExpression()
             verifyAndNextToken(1)// ;
             when (row!!._segment) {
-                "var"->parse_file.appendText("push local ${row._index}")
-                "argument"->parse_file.appendText("push argument ${row._index}")
-                "field"->parse_file.appendText("push this ${row._index}")
-                "static"->parse_file.appendText("push static ${row._index}")
+                "var"->parse_file.appendText("pop local ${row._index}\n")
+                "argument"->parse_file.appendText("pop argument ${row._index}\n")
+                "field"->parse_file.appendText("pop this ${row._index}\n")
+                "static"->parse_file.appendText("pop static ${row._index}\n")
             }
 
         }

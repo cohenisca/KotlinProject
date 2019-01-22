@@ -6,28 +6,31 @@ val listOfOp= listOf<String>("+","-","*","/","&amp;","|","&lt;","&gt;","=")
 class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tokens_file) {
 
     fun buildExpression() {
+        //parse_file.appendText("//buildExpression\n")
         buildTerm()
         var op:String
         op=valueOfToken()
         while(index <tokensOfFile.lastIndex && valueOfToken() in listOfOp){
             verifyAndNextToken(1)// op
             buildTerm()
+            when(op){
+                "+"->parse_file.appendText("add\n")
+                "-"->parse_file.appendText("sub\n")
+                "*"->parse_file.appendText("call Math.multiply 2\n")
+                "/"->parse_file.appendText("call Math.divide 2\n")
+                "&amp;"->parse_file.appendText("and\n")
+                "|"->parse_file.appendText("or\n")
+                "&lt;"->parse_file.appendText("lt\n")
+                "&gt;"->parse_file.appendText("gt\n")
+                "="->parse_file.appendText("eq\n")
+            }
         }
-        when(op){
-            "+"->parse_file.appendText("add\n")
-            "-"->parse_file.appendText("sub\n")
-            "*"->parse_file.appendText("call Math.multiply 2\n")
-            "/"->parse_file.appendText("call Math.divide 2\n")
-            "&amp"->parse_file.appendText("and\n")
-            "|"->parse_file.appendText("or\n")
-            "&lt"->parse_file.appendText("lt\n")
-            "&gt"->parse_file.appendText("gt\n")
-            "="->parse_file.appendText("eq\n")
-        }
+
 
     }
 
     private fun buildTerm() {
+        //parse_file.appendText("//buildTerm\n")
         if (index <tokensOfFile.lastIndex){
             when(AllTokens[index].t){
                 TokenTypes.integerConstant -> {
@@ -37,13 +40,15 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
                 TokenTypes.stringConstant -> {
                     var word=valueOfToken()
                     parse_file.appendText("""
-                        push constant ${word.length+1}
+                        push constant ${word.length}
                         call String.new 1
+
                     """.trimIndent())
                     for (i in word){
                         parse_file.appendText("""
                             push constant ${i.toInt()}
                             call String.appendChar 2
+
                         """.trimIndent())
                     }
                     verifyAndNextToken(1)//string
@@ -54,6 +59,7 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
                         "true"->parse_file.appendText("""
                             push constant 0
                             not
+
                         """.trimIndent())
                         "null"->parse_file.appendText("push constant 0\n")
                         "false"->parse_file.appendText("push constant 0\n")
@@ -93,15 +99,16 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
                                 if (row==null)
                                     row= classSymbolTable.firstOrNull { it._name==n }
                                 when (row!!._segment) {
-                                    "var"->parse_file.appendText("push local ${row._index}")
-                                    "argument"->parse_file.appendText("push argument ${row._index}")
-                                    "field"->parse_file.appendText("push this ${row._index}")
-                                    "static"->parse_file.appendText("push static ${row._index}")
+                                    "var"->parse_file.appendText("push local ${row._index}\n")
+                                    "argument"->parse_file.appendText("push argument ${row._index}\n")
+                                    "field"->parse_file.appendText("push this ${row._index}\n")
+                                    "static"->parse_file.appendText("push static ${row._index}\n")
                                 }
                                 parse_file.appendText("""
                                     add
                                     pop pointer 1
                                     push that 0
+
                                 """.trimIndent())
                                 verifyAndNextToken(1)//]
                             }
@@ -121,10 +128,10 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
                                 if (row==null)
                                     row= classSymbolTable.firstOrNull { it._name==n }
                                 when (row!!._segment) {
-                                    "var"->parse_file.appendText("push local ${row._index}")
-                                    "argument"->parse_file.appendText("push argument ${row._index}")
-                                    "field"->parse_file.appendText("push this ${row._index}")
-                                    "static"->parse_file.appendText("push static ${row._index}")
+                                    "var"->parse_file.appendText("push local ${row._index}\n")
+                                    "argument"->parse_file.appendText("push argument ${row._index}\n")
+                                    "field"->parse_file.appendText("push this ${row._index}\n")
+                                    "static"->parse_file.appendText("push static ${row._index}\n")
                                 }
                             }//varName
                         }
@@ -136,10 +143,10 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
                         if (row == null)
                             row = classSymbolTable.firstOrNull { it._name == n }
                         when (row!!._segment) {
-                            "var" -> parse_file.appendText("push local ${row._index}")
-                            "argument" -> parse_file.appendText("push argument ${row._index}")
-                            "field" -> parse_file.appendText("push this ${row._index}")
-                            "static" -> parse_file.appendText("push static ${row._index}")
+                            "var" -> parse_file.appendText("push local ${row._index}\n")
+                            "argument" -> parse_file.appendText("push argument ${row._index}\n")
+                            "field" -> parse_file.appendText("push this ${row._index}\n")
+                            "static" -> parse_file.appendText("push static ${row._index}\n")
                         }
                         verifyAndNextToken(1)//varName
                     }
@@ -152,6 +159,7 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
     }
 
     fun buildSubroutineCall() {
+        //parse_file.appendText("//buildSubroutineCall\n")
         if (index <tokensOfFile.lastIndex-1 ){
             var subName:String
             var classOrVar_Name:String
@@ -165,6 +173,7 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
                     parse_file.appendText("""
                         push pointer 0
                         call $class_Name.$subName n
+
                     """.trimIndent())
                 }
                 "."->{
@@ -190,6 +199,7 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
     }
 
     private fun buildExpressionList() :Int{
+        //parse_file.appendText("//buildExpressionList\n")
         var paramCounter=0
         if(index <tokensOfFile.lastIndex && valueOfToken()!=")"){
             buildExpression()
