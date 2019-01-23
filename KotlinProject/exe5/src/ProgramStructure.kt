@@ -24,9 +24,10 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
 
     private fun buildSubroutineDec() {
         //parse_file.appendText("//buildSubroutineDec\n")
-
         while (index < tokensOfFile.lastIndex &&(valueOfToken()in arrayOf("constructor","function","method"))){
             subroutineSymbolTable.clear()
+            ifLabelCounter=0
+            whileLabelCounter=0
             initCounters(countersubroutineSymbolTable)
             var functionType=valueOfToken()
             verifyAndNextToken(1)//subroutine declaration
@@ -68,15 +69,15 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
             var offset=0
             for(i in counterClassSymbolTable){
                 if(i._Segment==kind) {
-                    i._Index++
-                    offset= i._Index-1
+                    i._Index++//update counter of this kind
+                    offset= i._Index-1//start from 0
                 }
             }
             var Type=valueOfToken()
             verifyAndNextToken(1)//type
-            var row=SymbolTable(valueOfToken(),Type,kind,offset)
+            var row=SymbolTable(valueOfToken(),Type,kind,offset)//find a new variable
             verifyAndNextToken(1)// varName
-            classSymbolTable.add(row)
+            classSymbolTable.add(row)// add to symbol table
             while (index < tokensOfFile.lastIndex && valueOfToken()==","){
                 verifyAndNextToken(1)// ,
                 //offset=updateCounters(counterClassSymbolTable,kind)
@@ -102,29 +103,32 @@ class ProgramStructure(parse_file: File, tokens_file: File) : Parsing(parse_file
         while (index < tokensOfFile.lastIndex && valueOfToken()=="var"){
             buildVarDec()
         }
-        var n=0
+        var n=0//num of locals
         countersubroutineSymbolTable.forEach{
             if (it._Segment=="var")
                 n=it._Index
         }
-        parse_file.appendText("function "+ class_Name+"."+function_name+" "+n+"\n")
+        parse_file.appendText("function "+ class_Name+"."+function_name+" "+n+"\n")//fun declaration+num of locals
 
         when(function_type){
             "constructor"-> {
                 var countOfField=0
-                countersubroutineSymbolTable.forEach{if(it._Segment=="field")countOfField=it._Index}
+                counterClassSymbolTable.forEach{if(it._Segment=="field")countOfField=it._Index}//count foelds
                 parse_file.appendText("""
                     push constant $countOfField
                     call Memory.alloc 1
                     pop pointer 0
+
                 """.trimIndent())
-            }
+            }//pop pointer 0=return a pointer to the created object=return this
             "method"->{
                 parse_file.appendText("""
                     push argument 0
                     pop pointer 0
+
                 """.trimIndent())
-            }
+            }// push argument 0=push the class pointer   into the machsanit
+            //pop pointer 0=take it out :pointer 0=RAM[THIS]
         }
         Statements(parse_file, tokens_file).buildStatements()
         verifyAndNextToken(1)//}

@@ -18,7 +18,10 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
         if (index <tokensOfFile.lastIndex){
             when(valueOfToken()){
                 "let"->buildLetStatement()
-                "if"->buildIfStatement()
+                "if"->{
+                    buildIfStatement()
+                }
+
                 "while"->buildWhileStatement()
                 "do"->buildDoStatement()
                 "return"->buildReturnStatement()
@@ -38,7 +41,7 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
                 push constant 0
                 return
 
-            """.trimIndent())
+            """.trimIndent())//push constant 0
         verifyAndNextToken(1)// ;
 
 
@@ -58,54 +61,57 @@ class Statements(parse_file: File, tokens_file: File) : Parsing(parse_file, toke
         //parse_file.appendText("//buildWhileStatement\n")
 
         verifyAndNextToken(2)// while (
-        parse_file.appendText("label WHILE_EXP"+ whileLabelCounter+"\n")
+        var CurrentCounter= whileLabelCounter
+
+        whileLabelCounter++
+        parse_file.appendText("label WHILE_EXP"+ CurrentCounter+"\n")
         Expressions(parse_file, tokens_file).buildExpression()
         verifyAndNextToken(2)// ) {
         parse_file.appendText("""
             not
-            if-goto WHILE_END$whileLabelCounter
+            if-goto WHILE_END$CurrentCounter
 
         """.trimIndent())
         buildStatements()
         verifyAndNextToken(1)//}
         parse_file.appendText("""
-            goto WHILE_EXP$whileLabelCounter
-            label WHILE_END$whileLabelCounter
+            goto WHILE_EXP$CurrentCounter
+            label WHILE_END$CurrentCounter
 
         """.trimIndent())
-        whileLabelCounter++
 
     }
 
     private fun buildIfStatement() {
         //parse_file.appendText("//buildIfStatement\n")
-
+        var CurrentCounter= ifLabelCounter
+        ifLabelCounter++
         verifyAndNextToken(2)// if (
         Expressions(parse_file, tokens_file).buildExpression()
         verifyAndNextToken(2)// ) {
         parse_file.appendText("""
-            if-goto IF_TRUE$ifLabelCounter
-            goto IF_FALSE$ifLabelCounter
-            label IF_TRUE$ifLabelCounter
+            if-goto IF_TRUE$CurrentCounter
+            goto IF_FALSE$CurrentCounter
+            label IF_TRUE$CurrentCounter
 
         """.trimIndent())
         buildStatements()
         verifyAndNextToken(1)// }
         if(index <tokensOfFile.lastIndex && valueOfToken()=="else"){
             parse_file.appendText("""
-                goto IF_END$ifLabelCounter
-                label IF_FALSE$ifLabelCounter
+                goto IF_END$CurrentCounter
+                label IF_FALSE$CurrentCounter
 
             """.trimIndent())
             verifyAndNextToken(2)//else {
             buildStatements()
             verifyAndNextToken(1)//}
-            parse_file.appendText("label IF_END"+ ifLabelCounter+"\n")
+            parse_file.appendText("label IF_END"+ CurrentCounter+"\n")
         }
         else
-            parse_file.appendText("label IF_FALSE$ifLabelCounter\n")
+            parse_file.appendText("label IF_FALSE$CurrentCounter\n")
 
-        ifLabelCounter++
+
     }
 
     private fun buildLetStatement() {

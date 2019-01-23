@@ -163,15 +163,17 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
             var subName:String
             var classOrVar_Name:String
             var n:Int
+            var numOfArg=0
+            var subroutineFullName:String=""
             when(valueOfTokenByIndex(index +1)){
                 "("->{
                     subName=valueOfToken()
                     verifyAndNextToken(2)//subroutineName (
+                    parse_file.appendText("push pointer 0\n")
                     n=buildExpressionList()+1
                     verifyAndNextToken(1)//)
                     parse_file.appendText("""
-                        push pointer 0
-                        call $class_Name.$subName n
+                        call $class_Name.$subName $n
 
                     """.trimIndent())
                 }
@@ -179,19 +181,63 @@ class Expressions(parse_file: File, tokens_file: File) : Parsing(parse_file, tok
                     classOrVar_Name=valueOfToken()
                     verifyAndNextToken(2)// className| varName .
                     subName=valueOfToken()
-                    verifyAndNextToken(2)//subroutineName (
-                    n=buildExpressionList()
-                    verifyAndNextToken(1)//)
-                    if(classOrVar_Name== class_Name){
-                        parse_file.appendText("call $class_Name.$subName $n\n")
+                    verifyAndNextToken(1)//subroutineName
+                    //n=buildExpressionList()
+                   // verifyAndNextToken(1)//)
+                    var subroutineType:String
+                    var subroutineIndex:Int
+                    if(subroutineSymbolTable.firstOrNull { it._name==classOrVar_Name }!=null){
+                        subroutineSymbolTable.forEach{if(it._name==classOrVar_Name){
+                            subroutineType=it._type
+                            subroutineIndex=it._index
+                            when (it._segment) {
+                                "var" -> parse_file.appendText("push local $subroutineIndex\n")
+                                "argument" -> parse_file.appendText("push argument $subroutineIndex\n")
+                                "field" -> parse_file.appendText("push this $subroutineIndex\n")
+                                "static" -> parse_file.appendText("push static $subroutineIndex\n")
+                            }
+                            subroutineFullName=subroutineType+"."+subName
+                        }
+                        }
+                        numOfArg++
+
                     }
-                    else if(classSymbolTable.firstOrNull { it._name==classOrVar_Name }!= null){
-                        var row=classSymbolTable.firstOrNull { it._name==classOrVar_Name }
-                        parse_file.appendText("push ${row!!._segment} ${row!!._index}\n")
+                    else if(classSymbolTable.firstOrNull{it._name==classOrVar_Name}!=null){
+                        classSymbolTable.forEach {
+                            if(it._name==classOrVar_Name)
+                            {
+                                subroutineFullName=it._type+"."+subName
+                                when (it._segment) {
+                                    "var" -> parse_file.appendText("push local ${it._index}\n")
+                                    "argument" -> parse_file.appendText("push argument ${it._index}\n")
+                                    "field" -> parse_file.appendText("push this ${it._index}\n")
+                                    "static" -> parse_file.appendText("push static ${it._index}\n")
+                                }
+                            }
+                        }
+                        numOfArg++
                     }
                     else{
-                        parse_file.appendText("call $classOrVar_Name.$subName $n\n")
+                        subroutineFullName= classOrVar_Name+"."+subName
                     }
+
+
+                    verifyAndNextToken(1)//(
+                    numOfArg=numOfArg+buildExpressionList()
+                    verifyAndNextToken(1)//)
+                    parse_file.appendText("call $subroutineFullName $numOfArg\n")
+
+
+                    //if(classOrVar_Name== class_Name){
+                     //   parse_file.appendText("call $class_Name.$subName $n\n")
+                    //}
+                    //else if(classSymbolTable.firstOrNull { it._name==classOrVar_Name }!= null){
+                    //    var row=classSymbolTable.firstOrNull { it._name==classOrVar_Name }
+                     //   parse_file.appendText("push ${row!!._segment} ${row!!._index}\n")
+                   // }
+                   // else{
+                    //    parse_file.appendText("call $classOrVar_Name.$subName $n\n")
+                    //}
                 }
             }
         }
